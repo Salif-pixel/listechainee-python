@@ -34,4 +34,4 @@ class GrandInt:
     def __str__(self):
         if self.suite is None:
             return str(self.chiffre)
-        return f"{self.suite}{self.chiffre}"
+        return str(self.chiffre) + str(self.suite)

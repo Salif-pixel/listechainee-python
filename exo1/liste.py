@@ -3,35 +3,54 @@ class Liste:
         self.valeur = valeur
         self.suite = suite
 
-    def append(self, l):
-        """Ajoute la liste l à la fin de la liste courante"""
+    def append(self, valeur):
+        """Ajoute une valeur à la fin de la liste"""
         if self.suite is None:
-            self.suite = l
+            self.suite = Liste(valeur)
         else:
-            self.suite.append(l)
+            self.suite.append(valeur)
 
     def separer(self):
         """Sépare la liste en éléments inférieurs et supérieurs/égaux au pivot (premier élément)"""
         if self.suite is None:
             return None, None
 
-        pivot = self.valeur
+        try:
+            pivot = float(self.valeur)  # Conversion en nombre pour comparaison
+        except ValueError:
+            pivot = self.valeur  # Si conversion échoue, compare comme string
+
         inferieurs = None
+        dernier_inf = None
         superieurs = None
+        dernier_sup = None
         courant = self.suite
 
         while courant is not None:
-            if courant.valeur < pivot:
+            suivant = courant.suite
+            courant.suite = None
+
+            try:
+                val_courant = float(courant.valeur)
+            except ValueError:
+                val_courant = courant.valeur
+
+            if val_courant < pivot:
                 if inferieurs is None:
-                    inferieurs = Liste(courant.valeur)
+                    inferieurs = courant
+                    dernier_inf = courant
                 else:
-                    inferieurs.append(Liste(courant.valeur))
+                    dernier_inf.suite = courant
+                    dernier_inf = courant
             else:
                 if superieurs is None:
-                    superieurs = Liste(courant.valeur)
+                    superieurs = courant
+                    dernier_sup = courant
                 else:
-                    superieurs.append(Liste(courant.valeur))
-            courant = courant.suite
+                    dernier_sup.suite = courant
+                    dernier_sup = courant
+
+            courant = suivant
 
         return inferieurs, superieurs
 
@@ -51,7 +70,6 @@ class Liste:
         # Reconstruire la liste triée
         result = Liste(self.valeur)
         if inferieurs is not None:
-            # Trouver la fin de la liste inferieurs
             dernier_inf = inferieurs
             while dernier_inf.suite is not None:
                 dernier_inf = dernier_inf.suite
@@ -59,12 +77,9 @@ class Liste:
         else:
             inferieurs = result
 
-        if superieurs is not None:
-            result.suite = superieurs
+        result.suite = superieurs
 
         return inferieurs if inferieurs is not None else result
 
     def __str__(self):
         return f"{self.valeur} -> {self.suite}" if self.suite else str(self.valeur)
-
-

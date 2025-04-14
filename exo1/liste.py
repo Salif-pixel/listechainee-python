@@ -10,53 +10,61 @@ class Liste:
         else:
             self.suite.append(l)
 
-    def supprimer_inferieurs(self):
-        """Supprime les éléments inférieurs au premier et retourne une nouvelle liste"""
+    def separer(self):
+        """Sépare la liste en éléments inférieurs et supérieurs/égaux au pivot (premier élément)"""
         if self.suite is None:
-            return None
+            return None, None
 
-        courant = self
-        result = None
-        precedent = None
+        pivot = self.valeur
+        inferieurs = None
+        superieurs = None
+        courant = self.suite
 
         while courant is not None:
-            if courant.valeur < self.valeur:
-                if precedent is not None:
-                    precedent.suite = courant.suite
-                if result is None:
-                    result = Liste(courant.valeur)
+            if courant.valeur < pivot:
+                if inferieurs is None:
+                    inferieurs = Liste(courant.valeur)
                 else:
-                    result.append(Liste(courant.valeur))
+                    inferieurs.append(Liste(courant.valeur))
             else:
-                precedent = courant
+                if superieurs is None:
+                    superieurs = Liste(courant.valeur)
+                else:
+                    superieurs.append(Liste(courant.valeur))
             courant = courant.suite
 
-        return result
+        return inferieurs, superieurs
 
     def quicksort(self):
         """Tri rapide de la liste chaînée"""
         if self.suite is None:
             return self
 
-        p = self.valeur
-        inferieurs = Liste.supprimer_inferieurs(self)
-        superieurs = self.suite
+        inferieurs, superieurs = self.separer()
 
+        # Trier les sous-listes
         if inferieurs is not None:
             inferieurs = inferieurs.quicksort()
         if superieurs is not None:
             superieurs = superieurs.quicksort()
 
+        # Reconstruire la liste triée
+        result = Liste(self.valeur)
         if inferieurs is not None:
-            inferieurs.append(Liste(p))
-            if superieurs is not None:
-                inferieurs.append(superieurs)
-            return inferieurs
+            # Trouver la fin de la liste inferieurs
+            dernier_inf = inferieurs
+            while dernier_inf.suite is not None:
+                dernier_inf = dernier_inf.suite
+            dernier_inf.suite = result
         else:
-            new_list = Liste(p)
-            if superieurs is not None:
-                new_list.append(superieurs)
-            return new_list
+            inferieurs = result
+
+        if superieurs is not None:
+            result.suite = superieurs
+
+        return inferieurs if inferieurs is not None else result
 
     def __str__(self):
         return f"{self.valeur} -> {self.suite}" if self.suite else str(self.valeur)
+
+
